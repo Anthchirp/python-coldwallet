@@ -7,7 +7,6 @@ import struct
 
 __b58chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 __b58index = { k: n for n, k in enumerate(__b58chars) }
-__b58base = len(__b58chars)
 
 def base58_decode(b58):
   '''Take a base58 encoded string and return the represented value as an integer.'''
