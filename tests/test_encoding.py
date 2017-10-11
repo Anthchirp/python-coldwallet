@@ -1,7 +1,8 @@
 from __future__ import absolute_import, division
 
-import mock
 import random
+
+import mock
 
 _test_addresses = {
   '1111111111111111111111111111111111': {
@@ -73,3 +74,9 @@ def test_block7_encoding_roundtrip():
     retval = block7_decode(block7_encode(number))
     assert retval['value'] == number, 'value %d was altered to %d in block7 encoding!' % (number, retval['value'])
     assert retval['valid'], 'value %d could not be decoded successfully' % number
+
+def test_crc8_returns_correct_values():
+  from coldwallet.encoding import crc8
+  assert crc8('1234567') == '9f'
+  assert crc8('1234568') == '0e'
+  assert crc8('1azZza1') == '95'

@@ -1,8 +1,9 @@
 from __future__ import absolute_import, division
 
-import coldwallet.aes
 import codecs
 import os
+
+import coldwallet.aes
 import pytest
 
 def test_encryption_function_validates_input():

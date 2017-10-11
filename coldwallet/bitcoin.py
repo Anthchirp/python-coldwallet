@@ -4,11 +4,12 @@
 from __future__ import absolute_import, division
 
 import codecs
-import ecdsa
 import hashlib
 import struct
 
+import bitstring
 import coldwallet.encoding
+import ecdsa
 
 class Network():
   BITCOIN = { 'private': 128, 'public': 0 }
@@ -39,14 +40,52 @@ def base58CheckEncode(version, payload):
   # Add leading '1' for every dropped chr(0) byte
   return ('1' * leadingZeros) + b58
 
+def raw_exponent_from_hexstring(exponent):
+  return codecs.decode(exponent, "hex_codec")
+
 def generate_private_key(exponent, version=Network.BITCOIN):
   '''Generate a private Bitcoin key from a secret exponent. The exponent
-     is given as a 256 bit (32 byte) string. The key is returned in
-     human-typable form.
+     can be given as a 256 bit (32 byte) string or in hexadecimal
+     representation. The key is returned in human-typable form.
      Different version fields can be specified to generate addresses on
      various bitcoin networks. The default is the BTC Bitcoin network.
   '''
+
+  assert exponent, 'No private key specified'
+
+  # Detect hex string and convert to raw exponent if required.
+  if len(exponent) > 32:
+    exponent = raw_exponent_from_hexstring(exponent)
+
   return base58CheckEncode(version['private'], exponent)
+
+def unpack_private_key(private_key):
+  '''Take a base 58 encoded human-typable private key and extract the raw
+     256 bit secret exponent and the version field. Verify the checksum
+     and return all of this information as a dictionary.
+  '''
+
+  # Decode base58 encoded payload into an unsigned integer.
+  decoded_payload = coldwallet.encoding.base58_decode(private_key)
+
+  # Load the integer into a bitstream bit field.
+  checked_payload = bitstring.BitStream(uint=decoded_payload, length=8 + 256 + 32)
+
+  # Extract the versioned payload and the contained checksum slices
+  versioned_payload = checked_payload[0:8+256].bytes
+  checksum = checked_payload[8+256:].bytes
+
+  # Recreate and compare the checksum
+  rechecksum = hashlib.sha256(hashlib.sha256(versioned_payload).digest()).digest()[0:4]
+  checksum_valid = checksum == rechecksum
+
+  # Extract the version number and the exponent
+  version = checked_payload[0:8].uint
+  exponent = checked_payload[8:8 + 256].bytes
+
+  return { 'secret_exponent': exponent,
+           'valid_checksum': checksum_valid,
+           'version': version }
 
 def generate_public_address(exponent, version=Network.BITCOIN):
   '''Generate the public Bitcoin address relating to a private key in the form
@@ -56,6 +95,10 @@ def generate_public_address(exponent, version=Network.BITCOIN):
   '''
 
   assert exponent, 'No private key specified'
+
+  # Detect hex string and convert to raw exponent if required.
+  if len(exponent) > 32:
+    exponent = raw_exponent_from_hexstring(exponent)
 
   # generate ECDSA public key (65 bytes, 1 byte 0x04,
   # 32 bytes corresponding to X coordinate, 32 bytes corresponding to Y coordinate)

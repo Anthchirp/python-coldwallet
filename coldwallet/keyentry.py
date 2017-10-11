@@ -14,4 +14,3 @@ def generate_entry_block_checksum(number):
   # Extract leading 5 bits from hash
   t = struct.unpack('<B', s.digest()[0:1])[0]
   return (t & 0b11111000) >> 3
-

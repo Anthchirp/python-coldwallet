@@ -4,6 +4,7 @@ from __future__ import absolute_import, division
 
 import hashlib
 import os
+
 from Cryptodome.Cipher import AES
 
 def encrypt_block(data, key, iv=None):

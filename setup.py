@@ -24,18 +24,27 @@ def find_version(*file_paths):
     return version_match.group(1)
   raise RuntimeError("Unable to find version string.")
 
-setup(name='coldwallet',
+setup(
+  name='coldwallet',
   description='Python package to generate secure paper-backed Bitcoin cold storage wallets',
   url='https://github.com/Anthchirp/python-coldwallet',
   author='Markus Gerstel',
   download_url="https://github.com/Anthchirp/python-coldwallet/releases",
   version=find_version("coldwallet", "__init__.py"),
-  install_requires=['pycryptodomex', 'ecdsa'],
+  install_requires=[
+    'bitstring',
+    'ecdsa',
+    'pycryptodomex',
+  ],
   packages=find_packages(),
   license='BSD',
-  setup_requires=['pytest-runner'],
-  tests_require=['mock',
-                 'pytest'],
+  setup_requires=[
+    'pytest-runner'
+  ],
+  tests_require=[
+    'mock',
+    'pytest'
+  ],
   classifiers = [
     'Development Status :: 1 - Planning',
     'License :: OSI Approved :: BSD License',

@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import, division
 
+import binascii
 import hashlib
 import struct
 
@@ -54,7 +55,7 @@ def block7_encode(value):
   return block7
 
 def block7_decode(block7):
-  '''Take a 7 character bas58 encoded string (41 bits), separate into data
+  '''Take a 7 character base58 encoded string (41 bits), separate into data
      and checksum, verify said checksum, and return a dictionary containing
      an unsigned integer representation of the data portion, and a boolean
      indicating whether the checksum was valid or not.
@@ -69,3 +70,9 @@ def block7_decode(block7):
 
   return { 'value': value, \
            'valid': checksum == expchecksum }
+
+def crc8(data):
+  '''Generate an 8 bit non-cryptographical checksum for any string.
+     This is used only for direct user feedback to avoid input errors.
+  '''
+  return "%02x" % (binascii.crc32(bytearray(data, 'ascii')) & 0xff)
