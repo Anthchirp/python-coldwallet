@@ -34,8 +34,7 @@ def test_block7_encoding():
   from coldwallet.encoding import block7_encode
   assert block7_encode(0) == '111111N'
 
-  maxvalue = 2 ** 36 - 1
-  assert maxvalue == 68719476735
+  maxvalue = 2 ** 36 - 1 # 68719476735
   assert block7_encode(maxvalue) == 'zmM9z3t'
 
 def test_block7_decoding():
@@ -74,6 +73,14 @@ def test_block7_encoding_roundtrip():
     retval = block7_decode(block7_encode(number))
     assert retval['value'] == number, 'value %d was altered to %d in block7 encoding!' % (number, retval['value'])
     assert retval['valid'], 'value %d could not be decoded successfully' % number
+
+def test_splitting_data_into_block7s():
+  from coldwallet.encoding import block7_split, block7_decode
+  doubledata = b"\x14\x23\x99\xc1\xff\x1d\x31\x0a\x8b" # 9 bytes = 72 bit = 2x36 bit
+  block7s = block7_split(doubledata)
+  assert len(block7s) == 2
+  assert block7_decode(block7s[0]) == { 'value': 0x142399c1f, 'valid': True }
+  assert block7_decode(block7s[1]) == { 'value': 0xf1d310a8b, 'valid': True }
 
 def test_crc8_returns_correct_values():
   from coldwallet.encoding import crc8

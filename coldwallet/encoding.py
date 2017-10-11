@@ -6,6 +6,8 @@ import binascii
 import hashlib
 import struct
 
+import bitstring
+
 __b58chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 __b58index = { k: n for n, k in enumerate(__b58chars) }
 
@@ -70,6 +72,17 @@ def block7_decode(block7):
 
   return { 'value': value, \
            'valid': checksum == expchecksum }
+
+def block7_split(data):
+  '''Take a byte string of a multiple of 36 bits (which, as 36 is not divisible
+     by 8, really means 72 bits or 9 bytes), and split it into encoded block7
+     strings.
+  '''
+  assert (len(data) * 8) % 36 == 0, \
+    "Function expects a multiple of 36 bits. %d bits provided" % (len(data) * 8)
+
+  return [ block7_encode(block.uint) \
+           for block in bitstring.BitArray(bytes=data).cut(36) ]
 
 def crc8(data):
   '''Generate an 8 bit non-cryptographical checksum for any string.

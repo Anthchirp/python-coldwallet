@@ -3,13 +3,13 @@ from __future__ import absolute_import, division
 import codecs
 import os
 
-import coldwallet.aes
 import pytest
 
 def test_encryption_function_validates_input():
   # Keys and data must be strings. Keys have 256 bits (32 bytes),
   # data must be a multiple of 128 bits (16 bytes).
   # IVs must be either None or a string of 128 bits (16 bytes).
+  import coldwallet.aes
   for invalid_data in (
         None, True, False, '', 'w'*31, 'z'*33
       ):
@@ -25,6 +25,7 @@ def test_encryption_function_validates_input():
       coldwallet.aes.encrypt_block('x'*16, 'x'*32, iv=invalid_iv)
 
 def test_encryption_function_uses_changing_ivs():
+  import coldwallet.aes
   data = os.urandom(32)
   key = os.urandom(32)
   variant1 = coldwallet.aes.encrypt_block(data, key)
@@ -34,6 +35,7 @@ def test_encryption_function_uses_changing_ivs():
                               codecs.encode(key, 'hex_codec').decode('utf-8'))
 
 def test_some_specific_AES_encryption_is_working():
+  import coldwallet.aes
   plaintext = b"0123456789abcdefghijklmnopqrstuv"
   key = b"the best keys have 32 characters"
   iv = b"the-best-iv-ever"
