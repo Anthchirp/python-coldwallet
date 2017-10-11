@@ -27,6 +27,7 @@ def find_version(*file_paths):
 setup(
   name='coldwallet',
   description='Python package to generate secure paper-backed Bitcoin cold storage wallets',
+  license='BSD',
   url='https://github.com/Anthchirp/python-coldwallet',
   author='Markus Gerstel',
   download_url="https://github.com/Anthchirp/python-coldwallet/releases",
@@ -36,8 +37,10 @@ setup(
     'ecdsa',
     'pycryptodomex',
   ],
+  entry_points = {
+    'console_scripts': ['coldwallet=coldwallet.command_line:main'],
+  },
   packages=find_packages(),
-  license='BSD',
   setup_requires=[
     'pytest-runner'
   ],
