@@ -51,3 +51,5 @@ def main():
     public_address = coldwallet.bitcoin.generate_public_address(private_key)
 
     print("  %s" % public_address)
+    key_code = coldwallet.crypto.encrypt_secret_key(private_key, coldkey, public_address)
+    print("    :%s" % key_code)

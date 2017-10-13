@@ -2,8 +2,11 @@
 
 from __future__ import absolute_import, division
 
+import base64
 import math
 import os
+import pylibscrypt
+import coldwallet.aes
 
 def disable_randomness():
   '''Make the random number generator produce deterministic (ie. non-random)
@@ -33,3 +36,34 @@ def generate_random_string(bits):
     rand_string = rand_string[:-1] + chr(ord(rand_string[-1]) & mask)
 
   return rand_string
+
+def encrypt_secret_key(secret, coldkey, public_address):
+  '''Encrypt a secret exponent using an individual symmetric key. The symmetric
+     key is generated from the shared coldwallet key and the public bitcoin
+     address using the memory-hard scrypt hash. The result is returned in base64
+     encoding.
+  '''
+  # Generate the symmetric key from the coldwallet key and the public bitcoin address
+  symmetric_key = pylibscrypt.scrypt(coldkey, public_address, N=2**15, p=3, olen=32)
+
+  # Encrypt the secret exponent with the symmetric key
+  encrypted_secret = coldwallet.aes.encrypt_block(secret, symmetric_key)
+
+  # Base64 encode the result
+  return base64.b64encode(encrypted_secret)
+
+def decrypt_secret_key(code, coldkey, public_address):
+  '''Decrypt a secret exponent, given in base64 encoding, using an individual
+     symmetric key. The symmetric key is generated as above. The result is
+     returned as a byte string.
+  '''
+  # Base64 decode the input
+  code = base64.b64decode(code)
+
+  # Generate the symmetric key from the coldwallet key and the public bitcoin address
+  symmetric_key = pylibscrypt.scrypt(coldkey, public_address, N=2**15, p=3, olen=32)
+
+  # Decrypt the secret exponent with the symmetric key
+  secret = coldwallet.aes.decrypt_block(code, symmetric_key)
+
+  return secret

@@ -44,3 +44,43 @@ def test_random_string_padding():
       assert len(rand) == 1
       seen_mask = seen_mask | ord(rand)
     assert seen_mask == mask
+
+def test_encoding_and_decoding_secret_key():
+  import coldwallet.bitcoin
+  import coldwallet.crypto
+
+  # This is a test relying on a randomized algorithm. To avoid it failing by
+  # chance disable random number generation instead.
+  coldwallet.crypto.disable_randomness()
+
+  # Generate a bitcoin address
+  private_key = coldwallet.crypto.generate_random_string(bits=256)
+  public_address = coldwallet.bitcoin.generate_public_address(private_key)
+  assert public_address == "1DR2Dp74CqtqXhU9MznV2r4qTuZBGYagP"
+
+  # Generate a coldwallet key
+  coldkey = coldwallet.crypto.generate_random_string(bits=36*8)
+
+  # Encrypt one with the other
+  code = coldwallet.crypto.encrypt_secret_key(private_key, coldkey, public_address)
+  assert code == "I06olv7sBr0mZ0DOV5qR8edp1rLF2x+nolKlAV+/kOj8aGp4jAHW1VuTawB90+fU"
+
+  # Encrypt one with the other again
+  code = coldwallet.crypto.encrypt_secret_key(private_key, coldkey, public_address)
+  # A new initialization vector is used, so the resulting code changes
+  assert code == "70vfOobHgodn7ICiLPWlbBgQKSc6X4c8ZUAalNq6URJ3UeNJJptdPEzbt4ceQMWs"
+
+  # Decrypt the private key again
+  verify_key = coldwallet.crypto.decrypt_secret_key(code, coldkey, public_address)
+  assert verify_key == private_key
+
+  # Attempt decryption with wrong public address
+  public_address = "3DR2Dp74CqtqXhU9MznV2r4qTuZBGYagP"
+  verify_key = coldwallet.crypto.decrypt_secret_key(code, coldkey, public_address)
+  assert verify_key != private_key
+
+  # Attempt decryption with wrong coldwallet key
+  public_address = "1DR2Dp74CqtqXhU9MznV2r4qTuZBGYagP"
+  coldkey = coldwallet.crypto.generate_random_string(bits=36*8)
+  verify_key = coldwallet.crypto.decrypt_secret_key(code, coldkey, public_address)
+  assert verify_key != private_key
