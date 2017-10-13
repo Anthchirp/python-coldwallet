@@ -51,7 +51,7 @@ setup(
     'pytest'
   ],
   classifiers = [
-    'Development Status :: 1 - Planning',
+    'Development Status :: 2 - Pre-Alpha',
     'License :: OSI Approved :: BSD License',
     'Programming Language :: Python :: 2',
     'Programming Language :: Python :: 2.7',

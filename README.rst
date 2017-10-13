@@ -10,4 +10,6 @@ coldwallet
 .. image:: https://coveralls.io/repos/github/Anthchirp/python-coldwallet/badge.svg?branch=master
     :target: https://coveralls.io/github/Anthchirp/python-coldwallet?branch=master
 
+.. image:: https://img.shields.io/pypi/status/coldwallet.svg
+
 .. image:: https://img.shields.io/pypi/pyversions/coldwallet.svg
