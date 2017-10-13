@@ -82,6 +82,12 @@ def test_splitting_data_into_block7s():
   assert block7_decode(block7s[0]) == { 'value': 0x142399c1f, 'valid': True }
   assert block7_decode(block7s[1]) == { 'value': 0xf1d310a8b, 'valid': True }
 
+def test_merging_data_into_block7s():
+  from coldwallet.encoding import block7_merge
+  block7s = ['5YZpdK6', 'wZq33nn']
+  assert block7_merge(block7s) == { 'key': b"\x14\x23\x99\xc1\xff\x1d\x31\x0a\x8b",
+                                    'valid': True }
+
 def test_crc8_returns_correct_values():
   from coldwallet.encoding import crc8
   assert crc8('1234567') == '9f'

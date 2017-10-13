@@ -84,6 +84,21 @@ def block7_split(data):
   return [ block7_encode(block.uint) \
            for block in bitstring.BitArray(bytes=data).cut(36) ]
 
+def block7_merge(data):
+  '''Take a list of block7 strings and merge them back into a byte string.
+     Returns a dictionary containing the byte string and a field indicating
+     the validity of all passed block7 strings.
+  '''
+  key = bitstring.BitArray()
+  valid = True
+
+  for block7 in data:
+    block = block7_decode(block7)
+    valid &= block['valid']
+    key += bitstring.BitArray(uint=block['value'], length=36)
+
+  return { 'key': key.bytes, 'valid': valid }
+
 def crc8(data):
   '''Generate an 8 bit non-cryptographical checksum for any string.
      This is used only for direct user feedback to avoid input errors.
