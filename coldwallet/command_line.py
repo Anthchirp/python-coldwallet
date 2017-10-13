@@ -1,6 +1,9 @@
 from __future__ import absolute_import, division, print_function
 
 import argparse
+import json
+import os
+import stat
 import sys
 
 import coldwallet
@@ -9,8 +12,16 @@ import coldwallet.crypto
 import coldwallet.encoding
 
 def main():
+  '''This is the main entry point of the coldwallet generating code.
+     This is what is run when you type
+       coldwallet
+     on the command line.
+
+     Here we offer the user options to generate cold wallets.
+  '''
   parser = argparse.ArgumentParser()
   parser.add_argument("--version", help="show version and exit", action="store_true")
+  parser.add_argument("-o", "--output", default="coldwallet.py", help="write wallet file to this location (default: coldwallet.py)")
   parser.add_argument("--addresses", type=int, default=10, help="generate this many bitcoin addresses")
   parser.add_argument("--codes", type=int, default=8, help="the number of code blocks used for the cold wallet")
 
@@ -25,6 +36,7 @@ def main():
   # de- and encryption of the private keys.
   parser.add_argument("--scrypt-N", type=int, default=14, help=argparse.SUPPRESS)
 
+  # Parse command line arguments
   args = parser.parse_args()
 
   if args.disable_randomness:
@@ -36,6 +48,10 @@ def main():
 
   if args.codes < 2:
     sys.stderr.write("The minimum number of code blocks is 2. The recommended minimum is 8.\n")
+    sys.exit(1)
+
+  if os.path.exists(args.output):
+    sys.stderr.write("Output file %s already exists. Please specify a different name.\n" % args.output)
     sys.exit(1)
 
   # Step 1. Create a coldwallet key. This key is encoded in human-readable form
@@ -63,12 +79,40 @@ def main():
     public_address = coldwallet.bitcoin.generate_public_address(private_key)
 
     print("  %s" % public_address)
-    key_code = coldwallet.crypto.encrypt_secret_key(private_key, coldkey, public_address, scrypt_N=args.scrypt_N)
+    key_code = coldwallet.crypto.encrypt_secret_key(private_key, coldkey, public_address, scrypt_N=2**args.scrypt_N)
 
-    verify_key = coldwallet.crypto.decrypt_secret_key(key_code, coldkey, public_address, scrypt_N=args.scrypt_N)
+    verify_key = coldwallet.crypto.decrypt_secret_key(key_code, coldkey, public_address, scrypt_N=2**args.scrypt_N)
     assert private_key == verify_key, "key validation error"
 
     bitcoin_addresses[public_address] = key_code
 
-  from pprint import pprint
-  pprint(bitcoin_addresses)
+  print()
+  print("Generating %s" % args.output)
+  with open(args.output, 'w') as fh:
+    fh.write(generate_file(bitcoin_addresses))
+
+    # set file as executable for all with read permissions
+    mode = os.fstat(fh.fileno()).st_mode
+    mode |= (mode & 0o444) >> 2
+    os.fchmod(fh.fileno(), stat.S_IMODE(mode))
+
+def generate_file(keys):
+  '''Generate a python file containing the public bitcoin addresses and the
+     encrypted secret keys.
+  '''
+
+  template = '''
+#!/usr/bin/env python
+
+if __name__ == '__main__':
+  import coldwallet
+
+  coldwallet.run(
+    {keys},
+    api_version=1,
+  )
+'''
+
+  formatted_keys = json.dumps(keys, sort_keys=True, indent=2, separators=(',', ': ')).replace('\n', '\n    ')
+  template = template.format(keys=formatted_keys)
+  return template.lstrip()

@@ -1,3 +1,6 @@
+# generated cold wallet in the root directory
+coldwallet.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

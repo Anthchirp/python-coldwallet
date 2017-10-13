@@ -53,11 +53,28 @@ def test_reject_too_few_codes(capsys):
 
 def test_create_example_keys(capsys, tmpdir):
   import coldwallet.command_line
-  sys.argv = [ 'coldwallet', '--disable-randomness', '--scrypt-N', '4' ]
+  sys.argv = [ 'coldwallet', '--disable-randomness', '--scrypt-N', '4', '--addresses', '2' ]
 
-  coldwallet.command_line.main()
+  with tmpdir.as_cwd():
+    coldwallet.command_line.main()
+
+  assert (tmpdir / 'coldwallet.py').check(file=1)
 
   out, err = capsys.readouterr()
   err = err.split('\n')
   assert len(err) == 4
   assert 'random number generation disabled' in err[1]
+
+def test_ensure_that_output_files_are_never_overwritten(capsys, tmpdir):
+  import coldwallet.command_line
+  sys.argv = [ 'coldwallet', '--disable-randomness', '--scrypt-N', '4', '--addresses', '2' ]
+  (tmpdir / 'coldwallet.py').ensure()
+
+  with pytest.raises(SystemExit) as exc_info:
+    with tmpdir.as_cwd():
+      coldwallet.command_line.main()
+
+  assert exc_info.value.code == 1
+  out, err = capsys.readouterr()
+  assert 'already exists' in err
+  assert (tmpdir / 'coldwallet.py').size() == 0
