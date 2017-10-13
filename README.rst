@@ -1,3 +1,6 @@
+coldwallet
+----------
+
 .. image:: https://badge.fury.io/py/coldwallet.svg
     :target: https://badge.fury.io/py/coldwallet
 

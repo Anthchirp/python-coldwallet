@@ -30,6 +30,7 @@ setup(
   license='BSD',
   url='https://github.com/Anthchirp/python-coldwallet',
   author='Markus Gerstel',
+  author_email='coldwallet@uxp.de',
   download_url="https://github.com/Anthchirp/python-coldwallet/releases",
   version=find_version("coldwallet", "__init__.py"),
   install_requires=[
