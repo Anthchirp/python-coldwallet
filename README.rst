@@ -11,4 +11,3 @@ coldwallet
     :target: https://coveralls.io/github/Anthchirp/python-coldwallet?branch=master
 
 .. image:: https://img.shields.io/pypi/pyversions/coldwallet.svg
-    :target:

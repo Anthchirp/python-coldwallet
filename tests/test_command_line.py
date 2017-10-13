@@ -1,7 +1,8 @@
 from __future__ import absolute_import, division
 
-import pytest
 import sys
+
+import pytest
 
 def test_get_command_line_help(capsys):
   import coldwallet.command_line

@@ -1,11 +1,12 @@
 from __future__ import absolute_import, division, print_function
 
 import argparse
+import sys
+
 import coldwallet
 import coldwallet.bitcoin
 import coldwallet.crypto
 import coldwallet.encoding
-import sys
 
 def main():
   parser = argparse.ArgumentParser()

@@ -26,7 +26,7 @@ def test_random_string_generation():
   # If number of bits is not divisble by 8 then the remaining bits must be 0
   rand = coldwallet.crypto.generate_random_string(bits=36)
   assert len(rand) == 5
-  assert ord(rand[4]) & 0x0F == 0
+  assert bytearray(rand)[4] & 0x0F == 0
 
 def test_random_string_padding():
   import coldwallet.crypto
@@ -61,26 +61,29 @@ def test_encoding_and_decoding_secret_key():
   # Generate a coldwallet key
   coldkey = coldwallet.crypto.generate_random_string(bits=36*8)
 
+  # Use weaker scrypt parameter setting to speed up testing
+  N = 2**8 # default: 2**14
+
   # Encrypt one with the other
-  code = coldwallet.crypto.encrypt_secret_key(private_key, coldkey, public_address)
-  assert code == "I06olv7sBr0mZ0DOV5qR8edp1rLF2x+nolKlAV+/kOj8aGp4jAHW1VuTawB90+fU"
+  code = coldwallet.crypto.encrypt_secret_key(private_key, coldkey, public_address, scrypt_N=N)
+  assert code == "I06olv7sBr0mZ0DOV5qR8RyvXPWt8yGjFbuhlj1vDO+clw/KLpS3mhEerUyRKgft"
 
   # Encrypt one with the other again
-  code = coldwallet.crypto.encrypt_secret_key(private_key, coldkey, public_address)
+  code = coldwallet.crypto.encrypt_secret_key(private_key, coldkey, public_address, scrypt_N=N)
   # A new initialization vector is used, so the resulting code changes
-  assert code == "70vfOobHgodn7ICiLPWlbBgQKSc6X4c8ZUAalNq6URJ3UeNJJptdPEzbt4ceQMWs"
+  assert code == "70vfOobHgodn7ICiLPWlbPAlhoCCCt5enrC9fM/Ml0uyM7gqGuiGZPPyAa5kRpK4"
 
   # Decrypt the private key again
-  verify_key = coldwallet.crypto.decrypt_secret_key(code, coldkey, public_address)
+  verify_key = coldwallet.crypto.decrypt_secret_key(code, coldkey, public_address, scrypt_N=N)
   assert verify_key == private_key
 
   # Attempt decryption with wrong public address
   public_address = "3DR2Dp74CqtqXhU9MznV2r4qTuZBGYagP"
-  verify_key = coldwallet.crypto.decrypt_secret_key(code, coldkey, public_address)
+  verify_key = coldwallet.crypto.decrypt_secret_key(code, coldkey, public_address, scrypt_N=N)
   assert verify_key != private_key
 
   # Attempt decryption with wrong coldwallet key
   public_address = "1DR2Dp74CqtqXhU9MznV2r4qTuZBGYagP"
   coldkey = coldwallet.crypto.generate_random_string(bits=36*8)
-  verify_key = coldwallet.crypto.decrypt_secret_key(code, coldkey, public_address)
+  verify_key = coldwallet.crypto.decrypt_secret_key(code, coldkey, public_address, scrypt_N=N)
   assert verify_key != private_key
