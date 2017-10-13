@@ -44,9 +44,7 @@ setup(
   packages=find_packages(),
   setup_requires=[
     'pytest-runner',
-    'setuptools-markdown',
   ],
-  long_description_markdown_filename='README.md',
   tests_require=[
     'mock',
     'pytest'
