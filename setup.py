@@ -37,6 +37,7 @@ setup(
     'bitstring',
     'ecdsa',
     'pycryptodomex',
+    'pylibscrypt',
   ],
   entry_points = {
     'console_scripts': ['coldwallet=coldwallet.command_line:main'],
