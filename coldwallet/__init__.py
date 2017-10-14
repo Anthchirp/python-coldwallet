@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
-__version__ = "0.0.12"
+__version__ = "0.0.13"
 
 def run(*args, **kwargs):
   '''Common entry point for all cold wallet files.
@@ -14,10 +14,10 @@ def run(*args, **kwargs):
   }
 
   if api_readers.get(kwargs.get('api_version')) is None:
-    print("This cold wallet uses an API that is newer than the installed python module.")
-    print("Please update the python module by running:")
-    print("  pip install --upgrade coldwallet")
     import sys
+    print("This cold wallet uses an API that is newer than the installed python module.", file=sys.stderr)
+    print("Please update the python module by running:", file=sys.stderr)
+    print("  pip install --upgrade coldwallet", file=sys.stderr)
     sys.exit(1)
 
   return api_readers[kwargs.get('api_version')](*args, **kwargs)

@@ -47,11 +47,11 @@ def main():
     sys.exit(0)
 
   if args.codes < 2:
-    sys.stderr.write("The minimum number of code blocks is 2. The recommended minimum is 8.\n")
+    print("The minimum number of code blocks is 2. The recommended minimum is 8.", file=sys.stderr)
     sys.exit(1)
 
   if os.path.exists(args.output):
-    sys.stderr.write("Output file %s already exists. Please specify a different name.\n" % args.output)
+    print("Output file %s already exists. Please specify a different name." % args.output, file=sys.stderr)
     sys.exit(1)
 
   # Step 1. Create a coldwallet key. This key is encoded in human-readable form

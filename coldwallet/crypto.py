@@ -1,6 +1,6 @@
 # Coldwallet encryption related functions. This is the heart of coldwallet.
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 import base64
 import math
@@ -16,7 +16,9 @@ def disable_randomness():
   '''
   import random
   import sys
-  sys.stderr.write('\n-- coldwallet running in test mode - random number generation disabled --\n\n')
+  print('', file=sys.stderr)
+  print('-- coldwallet running in test mode - random number generation disabled --', file=sys.stderr)
+  print('', file=sys.stderr)
   def fakerandom(b):
     # bytes/bytearray conversion and use and rounding of
     # random.random() is required for Python2/3 compatibility.
