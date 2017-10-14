@@ -92,9 +92,10 @@ def main():
     fh.write(generate_file(bitcoin_addresses))
 
     # set file as executable for all with read permissions
-    mode = os.fstat(fh.fileno()).st_mode
-    mode |= (mode & 0o444) >> 2
-    os.fchmod(fh.fileno(), stat.S_IMODE(mode))
+    if os.name not in ('nt'):
+      mode = os.fstat(fh.fileno()).st_mode
+      mode |= (mode & 0o444) >> 2
+      os.fchmod(fh.fileno(), stat.S_IMODE(mode))
 
 def generate_file(keys):
   '''Generate a python file containing the public bitcoin addresses and the
